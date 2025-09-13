@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>302 BarberShop — Verificacao</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root{ --bg:#fff; --panel:#f7f7f7; --text:#151515; --muted:#777; --border:#e9e9e9; --accent:#000; --accent-contrast:#fff; --radius:10px; --shadow:0 8px 20px rgba(0,0,0,.06); }
+    *{ box-sizing:border-box } html,body{ height:100% }
+    body{ margin:0; font-family:"Poppins",system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--text) }
+    header{ position:sticky; top:0; z-index:10; background:var(--bg); border-bottom:1px solid var(--border); padding:14px 20px; display:flex; justify-content:flex-end; align-items:center }
+    .logo{ height:65px; width:auto; object-fit:contain }
+    main{ min-height:calc(100vh - 70px); display:grid; place-items:center; padding:40px 18px }
+    .card{ width:100%; max-width:520px; background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:28px }
+    .title{ margin:0 0 8px; font-size:26px; font-weight:700; letter-spacing:.2px }
+    .subtitle{ margin:0 0 20px; font-size:14px; color:var(--muted) }
+    form{ display:flex; gap:10px; align-items:center; margin-top:6px }
+    input[type=email]{ flex:1; background:#fff; border:1px solid var(--border); border-radius:8px; padding:14px; font-size:16px; outline:none; transition:border-color .2s }
+    input[type=email]:focus{ border-color:#cfcfcf }
+    button{ background:var(--accent); color:var(--accent-contrast); border:none; border-radius:8px; padding:14px 18px; font-size:16px; font-weight:600; cursor:pointer; transition:transform .05s,opacity .2s; white-space:nowrap }
+    button:active{ transform:scale(.98) } button:disabled{ opacity:.6; cursor:not-allowed }
+    .msg{ margin-top:14px; font-size:15px; line-height:1.5 }
+    .ok{ color:#107a12; font-weight:600 } .bad{ color:#b00020; font-weight:600 }
+    .hint{ margin-top:10px; color:var(--muted); font-size:13px }
+    @media (max-width:420px){ form{ flex-direction:column; align-items:stretch } button{ width:100% } }
+  </style>
+</head>
+<body>
+  <header><img src="images.png" alt="302 BarberShop" class="logo"></header>
+  <main>
+    <section class="card" aria-labelledby="title">
+      <h1 id="title" class="title">Verificacao de Subscricao</h1>
+      <p class="subtitle">Coloque aqui o seu email associado a subscricao.</p>
+      <form id="f" novalidate>
+        <input id="email" name="email" type="email" required placeholder="ex: cliente@exemplo.com" autocomplete="email" />
+        <button id="btn">Verificar</button>
+      </form>
+      <div id="msg" class="msg" role="status" aria-live="polite"></div>
+      <p class="hint">Se aparecer "Nao autorizado", fale connosco para regularizar.</p>
+    </section>
+  </main>
+  <script>
+    const f=document.getElementById('f'), msg=document.getElementById('msg'), btn=document.getElementById('btn'), emailEl=document.getElementById('email');
+    f.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const email=(emailEl.value||'').trim().toLowerCase();
+      if(!email){ msg.textContent='Indique um email valido.'; msg.className='msg bad'; return; }
+      msg.textContent='A verificar...'; msg.className='msg'; btn.disabled=true;
+      try{
+        const r=await fetch('/api/subscription/verify-by-email?email='+encodeURIComponent(email));
+        const data=await r.json();
+        if(data.ok){ msg.textContent='OK: '+(data.name||email)+' ('+data.status+')'; msg.className='msg ok'; navigator.vibrate?.(80); }
+        else{ msg.textContent='Nao autorizado: '+(data.reason||'Sem subscricao ativa'); msg.className='msg bad'; navigator.vibrate?.([70,40,70]); }
+      }catch{ msg.textContent='Erro ao verificar. Tente novamente.'; msg.className='msg bad'; }
+      finally{ btn.disabled=false; }
+    });
+  </script>
+</body>
+</html>
