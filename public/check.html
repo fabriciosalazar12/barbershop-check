@@ -30,14 +30,14 @@
   <header><img src="images.png" alt="302 BarberShop" class="logo"></header>
   <main>
     <section class="card" aria-labelledby="title">
-      <h1 id="title" class="title">Verificacao de Subscricao</h1>
-      <p class="subtitle">Coloque aqui o seu email associado a subscricao.</p>
+      <h1 id="title" class="title">Verificação de Subscrição</h1>
+      <p class="subtitle">Coloque aqui o seu email associado à subscrição.</p>
       <form id="f" novalidate>
         <input id="email" name="email" type="email" required placeholder="ex: cliente@exemplo.com" autocomplete="email" />
         <button id="btn">Verificar</button>
       </form>
       <div id="msg" class="msg" role="status" aria-live="polite"></div>
-      <p class="hint">Se aparecer "Nao autorizado", fale connosco para regularizar.</p>
+      <p class="hint">Se aparecer "Não autorizado", fale connosco para regularizar.</p>
     </section>
   </main>
   <script>
@@ -45,13 +45,13 @@
     f.addEventListener('submit', async (e)=>{
       e.preventDefault();
       const email=(emailEl.value||'').trim().toLowerCase();
-      if(!email){ msg.textContent='Indique um email valido.'; msg.className='msg bad'; return; }
+      if(!email){ msg.textContent='Indique um email válido.'; msg.className='msg bad'; return; }
       msg.textContent='A verificar...'; msg.className='msg'; btn.disabled=true;
       try{
         const r=await fetch('/api/subscription/verify-by-email?email='+encodeURIComponent(email));
         const data=await r.json();
         if(data.ok){ msg.textContent='OK: '+(data.name||email)+' ('+data.status+')'; msg.className='msg ok'; navigator.vibrate?.(80); }
-        else{ msg.textContent='Nao autorizado: '+(data.reason||'Sem subscricao ativa'); msg.className='msg bad'; navigator.vibrate?.([70,40,70]); }
+        else{ msg.textContent='Não autorizado: '+(data.reason||'Sem subscrição ativa'); msg.className='msg bad'; navigator.vibrate?.([70,40,70]); }
       }catch{ msg.textContent='Erro ao verificar. Tente novamente.'; msg.className='msg bad'; }
       finally{ btn.disabled=false; }
     });
